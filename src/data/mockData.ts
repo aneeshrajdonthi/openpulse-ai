@@ -157,11 +157,11 @@ export const REPOSITORIES: Repository[] = [
         ]
       }
     ],
-    codeReviewPreset: {
-      id: 'rev-react',
-      title: 'Fiber Reconciler State Mutation Scan',
-      fileName: 'ReactFiberWorkLoop.ts',
-      originalCode: `export function performUnitOfWork(unitOfWork: Fiber): void {
+    codeReviewFiles: [
+      {
+        id: 'rev-react-1',
+        fileName: 'ReactFiberWorkLoop.ts',
+        code: `export function performUnitOfWork(unitOfWork: Fiber): void {
   const current = unitOfWork.alternate;
   let next = beginWork(current, unitOfWork, renderLanes);
   unitOfWork.memoizedProps = unitOfWork.pendingProps;
@@ -176,29 +176,54 @@ export const REPOSITORIES: Repository[] = [
   (unitOfWork as any).flags |= UpdateFlag;
   console.log("Processing fiber unit: " + unitOfWork.tag);
 }`,
-      score: 68,
-      securityRating: 'C',
-      findings: [
-        {
-          id: 'find-1',
-          line: 11,
-          severity: 'critical',
-          type: 'Security',
-          message: 'Unsafe type casting (as any) bypasses compiler type safety and may corrupt fiber flags.',
-          recommendation: 'Use strictly typed bitwise helper functions like `addFiberFlag(unitOfWork, UpdateFlag)`.',
-          fixedSnippet: 'addFiberFlag(unitOfWork, UpdateFlag);'
-        },
-        {
-          id: 'find-2',
-          line: 12,
-          severity: 'warning',
-          type: 'Performance',
-          message: 'Leftover console.log string concatenation in hot reconciliation work loop.',
-          recommendation: 'Remove debugging console statements or wrap inside __DEV__ flag checks.',
-          fixedSnippet: 'if (__DEV__) { logFiberUnit(unitOfWork); }'
-        }
-      ]
-    }
+        qualityScore: 68,
+        securityRating: 'C',
+        findings: [
+          {
+            id: 'find-1',
+            line: 11,
+            severity: 'critical',
+            type: 'Security',
+            message: 'Unsafe type casting (as any) bypasses compiler type safety and may corrupt fiber flags.',
+            recommendation: 'Use strictly typed bitwise helper functions like `addFiberFlag(unitOfWork, UpdateFlag)`.',
+            fixedCode: `export function performUnitOfWork(unitOfWork: Fiber): void {
+  const current = unitOfWork.alternate;
+  let next = beginWork(current, unitOfWork, renderLanes);
+  unitOfWork.memoizedProps = unitOfWork.pendingProps;
+  
+  if (next === null) {
+    completeUnitOfWork(unitOfWork);
+  } else {
+    workInProgress = next;
+  }
+  
+  addFiberFlag(unitOfWork, UpdateFlag);
+}`
+          },
+          {
+            id: 'find-2',
+            line: 12,
+            severity: 'warning',
+            type: 'Performance',
+            message: 'Leftover console.log string concatenation in hot reconciliation work loop.',
+            recommendation: 'Remove debugging console statements or wrap inside __DEV__ flag checks.',
+            fixedCode: `export function performUnitOfWork(unitOfWork: Fiber): void {
+  const current = unitOfWork.alternate;
+  let next = beginWork(current, unitOfWork, renderLanes);
+  unitOfWork.memoizedProps = unitOfWork.pendingProps;
+  
+  if (next === null) {
+    completeUnitOfWork(unitOfWork);
+  } else {
+    workInProgress = next;
+  }
+  
+  if (__DEV__) { logFiberUnit(unitOfWork); }
+}`
+          }
+        ]
+      }
+    ]
   },
   {
     id: 'repo-2',
@@ -283,30 +308,35 @@ res.setHeader('x-action-result', encodedResult);`
         ]
       }
     ],
-    codeReviewPreset: {
-      id: 'rev-next',
-      title: 'App Router Cache Revalidation Security Audit',
-      fileName: 'app-revalidate.ts',
-      originalCode: `export async function revalidatePath(path: string, type?: 'layout' | 'page') {
+    codeReviewFiles: [
+      {
+        id: 'rev-next-1',
+        fileName: 'app-revalidate.ts',
+        code: `export async function revalidatePath(path: string, type?: 'layout' | 'page') {
   // Direct path injection without sanitization
   const cacheKey = "route_cache_" + path;
   await globalCacheStore.delete(cacheKey);
   console.log("Cache evicted for key: " + cacheKey);
 }`,
-      score: 74,
-      securityRating: 'B',
-      findings: [
-        {
-          id: 'find-next-1',
-          line: 3,
-          severity: 'warning',
-          type: 'Security',
-          message: 'Path parameter is not sanitized before building cache key string, potential cache pollution risk.',
-          recommendation: 'Normalize and sanitize path using `sanitizeRoutePath(path)`.',
-          fixedSnippet: 'const cacheKey = "route_cache_" + sanitizeRoutePath(path);'
-        }
-      ]
-    }
+        qualityScore: 74,
+        securityRating: 'B',
+        findings: [
+          {
+            id: 'find-next-1',
+            line: 3,
+            severity: 'warning',
+            type: 'Security',
+            message: 'Unsanitized user path string used directly in route cache key generation.',
+            recommendation: 'Sanitize path parameter to prevent cache poisoning attacks.',
+            fixedCode: `export async function revalidatePath(path: string, type?: 'layout' | 'page') {
+  const sanitizedPath = sanitizeRoutePath(path);
+  const cacheKey = "route_cache_" + sanitizedPath;
+  await globalCacheStore.delete(cacheKey);
+}`
+          }
+        ]
+      }
+    ]
   },
   {
     id: 'repo-3',
@@ -381,28 +411,32 @@ const stream = await this.client.chat.completions.create({ ...params, signal });
         ]
       }
     ],
-    codeReviewPreset: {
-      id: 'rev-lc',
-      title: 'Prompt Injection & Agent Tool Execution Sanity',
-      fileName: 'agent_executor.py',
-      originalCode: `def execute_tool_call(tool_name: str, tool_input: str):
+    codeReviewFiles: [
+      {
+        id: 'rev-lc-1',
+        fileName: 'agent_executor.py',
+        code: `def execute_tool_call(tool_name: str, tool_input: str):
     # Unsafe eval execution of dynamically constructed tool input
     result = eval(f"{tool_name}({tool_input})")
     return str(result)`,
-      score: 42,
-      securityRating: 'F',
-      findings: [
-        {
-          id: 'find-lc-1',
-          line: 3,
-          severity: 'critical',
-          type: 'Security',
-          message: 'CRITICAL VULNERABILITY: Use of `eval()` on raw user prompt inputs enables Remote Code Execution (RCE).',
-          recommendation: 'Replace eval with a structured JSON parameter parser and tool registry dispatch table.',
-          fixedSnippet: 'result = tool_registry[tool_name].invoke(json.loads(tool_input))'
-        }
-      ]
-    }
+        qualityScore: 42,
+        securityRating: 'F',
+        findings: [
+          {
+            id: 'find-lc-1',
+            line: 3,
+            severity: 'critical',
+            type: 'Security',
+            message: 'CRITICAL VULNERABILITY: Use of eval() on raw user prompt inputs enables Remote Code Execution (RCE).',
+            recommendation: 'Replace eval() with safe tool dispatcher dictionary lookup.',
+            fixedCode: `def execute_tool_call(tool_name: str, tool_input: str):
+    if tool_name not in APPROVED_TOOLS:
+        raise ValueError("Unauthorized tool call")
+    return str(APPROVED_TOOLS[tool_name](tool_input))`
+          }
+        ]
+      }
+    ]
   }
 ];
 

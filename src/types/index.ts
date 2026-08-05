@@ -19,7 +19,7 @@ export interface Repository {
   goodFirstIssuesCount: number;
   architectureNodes: ArchNode[];
   issues: IssueItem[];
-  codeReviewPreset?: CodeReviewPreset;
+  codeReviewFiles?: CodeReviewFile[];
 }
 
 export interface ArchNode {
@@ -53,22 +53,23 @@ export interface IssueItem {
   generatedTests: string[];
 }
 
-export interface CodeReviewPreset {
+export interface CodeReviewFile {
   id: string;
-  title: string;
   fileName: string;
-  originalCode: string;
-  score: number;
-  securityRating: 'A+' | 'B' | 'C' | 'D' | 'F';
-  findings: {
-    id: string;
-    line: number;
-    severity: 'critical' | 'warning' | 'info';
-    type: 'Security' | 'Performance' | 'Memory Leak' | 'Style';
-    message: string;
-    recommendation: string;
-    fixedSnippet?: string;
-  }[];
+  code: string;
+  securityRating: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+  qualityScore: number;
+  findings: FindingItem[];
+}
+
+export interface FindingItem {
+  id: string;
+  line: number;
+  severity: 'critical' | 'warning' | 'info';
+  type: 'Security' | 'Type Safety' | 'Edge Case' | 'Performance';
+  message: string;
+  recommendation: string;
+  fixedCode: string;
 }
 
 export interface Contributor {

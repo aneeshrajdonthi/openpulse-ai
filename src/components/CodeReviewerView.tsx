@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import type { Repository } from '../types';
-import { Play, Shield, Activity, AlertTriangle, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import type { Repository, CodeReviewFile } from '../types';
+import { Play, Shield, Activity, AlertTriangle, AlertCircle, CheckCircle2, Sparkles, ChevronDown } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface CodeReviewerViewProps {
@@ -8,41 +8,112 @@ interface CodeReviewerViewProps {
 }
 
 export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
-  const [code, setCode] = useState(`function calculateRisk(score) {
-  if (score > 90) return "high";
-  if (score > 70) return "medium";
-  return "low";
-}`);
+  // Default files built dynamically if repo.codeReviewFiles is empty
+  const defaultFiles: CodeReviewFile[] = [
+    {
+      id: 'cr-1',
+      fileName: `src/${repo.name}Core.ts`,
+      code: `// ${repo.name} Core Entry Point
+export function runAnalysis(options) {
+  if (options.depth > 10) {
+    return parseDeepTree(options.target);
+  }
+  return parseRoot(options.target);
+}`,
+      securityRating: 'A+',
+      qualityScore: 92,
+      findings: [
+        {
+          id: 'f-1',
+          line: 2,
+          severity: 'critical',
+          type: 'Type Safety',
+          message: `Missing type declaration for 'options' parameter in ${repo.name}.`,
+          recommendation: 'Add appropriate TypeScript interface for options parameter.',
+          fixedCode: `// ${repo.name} Core Entry Point
+export interface AnalysisOptions {
+  depth: number;
+  target: string;
+}
 
-  const [fixedIssues, setFixedIssues] = useState<Record<string, boolean>>({});
+export function runAnalysis(options: AnalysisOptions) {
+  if (options.depth > 10) {
+    return parseDeepTree(options.target);
+  }
+  return parseRoot(options.target);
+}`
+        },
+        {
+          id: 'f-2',
+          line: 3,
+          severity: 'warning',
+          type: 'Edge Case',
+          message: 'Unhandled null options object or negative depth value.',
+          recommendation: 'Add runtime boundary check before dereferencing options properties.',
+          fixedCode: `// ${repo.name} Core Entry Point
+export function runAnalysis(options: AnalysisOptions) {
+  if (!options) throw new Error("Options object is required");
+  if (options.depth > 10) {
+    return parseDeepTree(options.target);
+  }
+  return parseRoot(options.target);
+}`
+        }
+      ]
+    },
+    {
+      id: 'cr-2',
+      fileName: `src/config.ts`,
+      code: `// ${repo.name} Environment Config
+export const config = {
+  apiUrl: process.env.API_URL || "http://localhost:3000",
+  timeout: process.env.TIMEOUT || 5000,
+};`,
+      securityRating: 'A',
+      qualityScore: 96,
+      findings: [
+        {
+          id: 'f-3',
+          line: 4,
+          severity: 'warning',
+          type: 'Type Safety',
+          message: 'Unparsed string assigned to numeric timeout property.',
+          recommendation: 'Use parseInt(process.env.TIMEOUT, 10) to guarantee numeric type.',
+          fixedCode: `// ${repo.name} Environment Config
+export const config = {
+  apiUrl: process.env.API_URL || "http://localhost:3000",
+  timeout: parseInt(process.env.TIMEOUT || "5000", 10),
+};`
+        }
+      ]
+    }
+  ];
+
+  const files = (repo.codeReviewFiles && repo.codeReviewFiles.length > 0) ? repo.codeReviewFiles : defaultFiles;
+  const [selectedFileId, setSelectedFileId] = useState<string>(files[0]?.id || '');
   const [isScanning, setIsScanning] = useState(false);
 
-  const activeIssuesCount = 2 - Object.keys(fixedIssues).length;
-  const qualityScore = 98 + Object.keys(fixedIssues).length * 1;
+  const activeFile = files.find(f => f.id === selectedFileId) || files[0];
+  const [code, setCode] = useState<string>(activeFile?.code || '');
+  const [resolvedFindings, setResolvedFindings] = useState<Record<string, boolean>>({});
 
-  const handleApplyFix = (issueId: string) => {
-    setFixedIssues(prev => ({ ...prev, [issueId]: true }));
-    
-    if (issueId === 'issue-1') {
-      setCode(`function calculateRisk(score: number): "high" | "medium" | "low" {
-  if (score > 90) return "high";
-  if (score > 70) return "medium";
-  return "low";
-}`);
-    } else if (issueId === 'issue-2') {
-      setCode(`function calculateRisk(score: number): "high" | "medium" | "low" {
-  if (typeof score !== 'number' || score < 0) {
-    throw new IllegalArgumentError("Score must be a non-negative number");
-  }
-  if (score > 90) return "high";
-  if (score > 70) return "medium";
-  return "low";
-}`);
+  useEffect(() => {
+    if (activeFile) {
+      setCode(activeFile.code);
     }
+  }, [selectedFileId, activeFile]);
+
+  const activeFindings = activeFile.findings.filter(f => !resolvedFindings[f.id]);
+  const activeIssuesCount = activeFindings.length;
+  const qualityScore = activeFile.qualityScore + (activeFile.findings.length - activeFindings.length) * 4;
+
+  const handleApplyFix = (findingId: string, fixedCode: string) => {
+    setResolvedFindings(prev => ({ ...prev, [findingId]: true }));
+    setCode(fixedCode);
 
     confetti({
-      particleCount: 100,
-      spread: 70,
+      particleCount: 80,
+      spread: 60,
       origin: { y: 0.6 },
     });
   };
@@ -52,36 +123,57 @@ export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
     setTimeout(() => {
       setIsScanning(false);
       confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 } });
-    }, 1200);
+    }, 1000);
   };
 
   return (
     <div className="flex flex-col h-full space-y-6 text-slate-100 p-2 md:p-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">AI Code Reviewer (SAST Security Audit)</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">AI Code Reviewer (SAST Audit)</h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Static analysis & AI vulnerability scanner for <span className="text-indigo-400 font-mono">{repo.owner}/{repo.name}</span>
+            Static security & quality scanner for <span className="text-indigo-400 font-mono">{repo.owner}/{repo.name}</span>
           </p>
         </div>
-        <button 
-          onClick={handleRunScan}
-          disabled={isScanning}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm shadow-indigo-500/20 transition-all"
-        >
-          {isScanning ? (
-            <>
-              <Sparkles className="w-4 h-4 animate-spin text-indigo-200" />
-              <span>Scanning Codebase...</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4" />
-              <span>Run SAST Scan</span>
-            </>
-          )}
-        </button>
+
+        <div className="flex items-center gap-3">
+          {/* File Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedFileId}
+              onChange={(e) => setSelectedFileId(e.target.value)}
+              className="appearance-none bg-[#12121c] border border-slate-800 rounded-lg py-2 pl-3 pr-9 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono cursor-pointer"
+            >
+              {files.map(f => (
+                <option key={f.id} value={f.id}>
+                  {f.fileName} ({f.findings.length} findings)
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
+              <ChevronDown className="h-3.5 w-3.5" />
+            </div>
+          </div>
+
+          <button 
+            onClick={handleRunScan}
+            disabled={isScanning}
+            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-3.5 py-2 rounded-lg text-xs font-semibold shadow-sm shadow-indigo-500/20 transition-all shrink-0"
+          >
+            {isScanning ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5 animate-spin text-indigo-200" />
+                <span>Scanning...</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3.5 h-3.5" />
+                <span>Run SAST Scan</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Top 3 Metric Cards */}
@@ -92,7 +184,7 @@ export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
           </div>
           <div>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Security Rating</p>
-            <p className="text-2xl font-bold text-emerald-400 font-mono">A+</p>
+            <p className="text-2xl font-bold text-emerald-400 font-mono">{activeFile.securityRating}</p>
           </div>
         </div>
 
@@ -102,7 +194,7 @@ export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
           </div>
           <div>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Quality Score</p>
-            <p className="text-2xl font-bold text-white font-mono">{qualityScore}/100</p>
+            <p className="text-2xl font-bold text-white font-mono">{Math.min(100, qualityScore)}/100</p>
           </div>
         </div>
 
@@ -126,8 +218,8 @@ export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
         {/* Left: Code Editor */}
         <div className="flex flex-col border border-slate-800 rounded-xl overflow-hidden bg-[#0e0e17] shadow-lg">
           <div className="bg-[#12121c] px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-mono text-indigo-300 font-medium">src/utils.ts</span>
-            <span className="text-[10px] text-slate-500 font-mono">TypeScript strict check</span>
+            <span className="text-xs font-mono text-indigo-300 font-semibold">{activeFile.fileName}</span>
+            <span className="text-[10px] text-slate-500 font-mono">AST Type Safety Audit</span>
           </div>
           <textarea
             value={code}
@@ -139,65 +231,58 @@ export function CodeReviewerView({ repo }: CodeReviewerViewProps) {
 
         {/* Right: Security & Quality Audit Findings */}
         <div className="flex flex-col space-y-4 overflow-y-auto pr-1">
-          {/* Issue 1 */}
-          {!fixedIssues['issue-1'] ? (
-            <div className="bg-[#12121c] border border-rose-500/20 rounded-xl p-4 shadow-lg space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-semibold rounded-full">
-                  <AlertCircle className="w-3 h-3 mr-1" /> Critical
-                </span>
-                <span className="text-xs font-mono text-slate-400">Line 2</span>
-              </div>
-              <p className="text-xs font-semibold text-white">Missing type declaration for 'score' parameter.</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                <span className="font-semibold text-slate-300">Recommendation:</span> Add appropriate TypeScript type to ensure strict type safety.
-              </p>
-              <button
-                onClick={() => handleApplyFix('issue-1')}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-semibold transition-colors shadow-sm shadow-indigo-500/20"
-              >
-                Apply AI Fix (Add Type Annotation)
-              </button>
-            </div>
-          ) : (
-            <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-400">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                Line 2: Type declaration fix applied!
-              </span>
-              <span className="font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Resolved</span>
-            </div>
-          )}
+          {activeFile.findings.map((finding) => {
+            const isResolved = !!resolvedFindings[finding.id];
+            if (isResolved) {
+              return (
+                <div key={finding.id} className="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-400">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Line {finding.line}: {finding.type} issue resolved!
+                  </span>
+                  <span className="font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Resolved</span>
+                </div>
+              );
+            }
 
-          {/* Issue 2 */}
-          {!fixedIssues['issue-2'] ? (
-            <div className="bg-[#12121c] border border-amber-500/20 rounded-xl p-4 shadow-lg space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-semibold rounded-full">
-                  <AlertTriangle className="w-3 h-3 mr-1" /> Warning
-                </span>
-                <span className="text-xs font-mono text-slate-400">Line 4</span>
-              </div>
-              <p className="text-xs font-semibold text-white">Potential unhandled edge case (negative inputs / type guards).</p>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                <span className="font-semibold text-slate-300">Recommendation:</span> Consider validating negative scores and non-numeric runtime types.
-              </p>
-              <button
-                onClick={() => handleApplyFix('issue-2')}
-                className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2 rounded-lg text-xs font-semibold transition-colors"
+            const isCritical = finding.severity === 'critical';
+            return (
+              <div 
+                key={finding.id} 
+                className={`bg-[#12121c] border rounded-xl p-4 shadow-lg space-y-2.5 ${
+                  isCritical ? 'border-rose-500/30' : 'border-amber-500/30'
+                }`}
               >
-                Apply AI Fix (Add Edge Case Guard)
-              </button>
-            </div>
-          ) : (
-            <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-400">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                Line 4: Negative input validation fix applied!
-              </span>
-              <span className="font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Resolved</span>
-            </div>
-          )}
+                <div className="flex items-center justify-between">
+                  <span className={`flex items-center px-2 py-0.5 text-[10px] font-semibold rounded-full border ${
+                    isCritical 
+                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
+                      : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                  }`}>
+                    {isCritical ? <AlertCircle className="w-3 h-3 mr-1" /> : <AlertTriangle className="w-3 h-3 mr-1" />}
+                    {finding.severity.toUpperCase()} • {finding.type}
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">Line {finding.line}</span>
+                </div>
+
+                <p className="text-xs font-semibold text-white">{finding.message}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  <span className="font-semibold text-slate-300">Recommendation:</span> {finding.recommendation}
+                </p>
+
+                <button
+                  onClick={() => handleApplyFix(finding.id, finding.fixedCode)}
+                  className={`w-full py-2 rounded-lg text-xs font-semibold transition-colors shadow-sm ${
+                    isCritical 
+                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/20' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                  }`}
+                >
+                  Apply AI Fix for {activeFile.fileName}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
