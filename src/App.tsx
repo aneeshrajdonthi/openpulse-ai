@@ -82,7 +82,7 @@ const App: React.FC = () => {
               <IssuePRStudioView repo={selectedRepo} selectedIssueId={selectedIssueId} />
             )}
             {activeTab === 'code-reviewer' && <CodeReviewerView repo={selectedRepo} />}
-            {activeTab === 'contributor-hub' && <ContributorHubView />}
+            {activeTab === 'contributor-hub' && <ContributorHubView repo={selectedRepo} />}
             {activeTab === 'sandbox' && <LiveSandboxView />}
           </div>
         </main>
