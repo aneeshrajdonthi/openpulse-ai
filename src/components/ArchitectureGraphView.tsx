@@ -9,13 +9,10 @@ import {
   Network, 
   FolderTree, 
   Search, 
-  Info,
   ArrowRight,
-  Cpu,
-  Layers,
-  ArrowDown,
   Copy,
-  Check
+  Check,
+  GitCommit
 } from 'lucide-react';
 
 interface ArchitectureGraphViewProps {
@@ -39,36 +36,33 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
     setTimeout(() => setCopiedFile(null), 2000);
   };
 
-  // Helper to extract clean file basename (e.g. "DashboardView.tsx" from "src/components/DashboardView.tsx")
   const getFileBasename = (filePath: string) => {
     const parts = filePath.split('/');
     return parts[parts.length - 1] || filePath;
   };
 
-  // Plain English file descriptions explaining what each file contains and its role
   const getFileDescription = (filePath: string): string => {
     const fn = getFileBasename(filePath).toLowerCase();
-    if (fn.includes('dashboard')) return 'Renders overview metrics, health score gauge, quick actions, and top open issues.';
-    if (fn.includes('navbar')) return 'Top navigation header containing active repo selector, global search, and AI settings.';
-    if (fn.includes('sidebar')) return 'Left-hand slim sidebar for tab routing (Dashboard, Architecture, Studio, Auditor, Sandbox).';
-    if (fn.includes('architecture')) return 'Interactive System Design flowchart, expandable file cards, and directory tree.';
-    if (fn.includes('issue') || fn.includes('pr')) return 'AI-assisted GitHub issue solver, resolution checklist, & live git diff generator.';
-    if (fn.includes('app.')) return 'Root React app container managing global state, routing, and modal triggers.';
-    if (fn.includes('types') || fn.includes('index.ts')) return 'TypeScript contract interfaces for Repository, ArchNode, Issues, & AISettings.';
-    if (fn.includes('github') || fn.includes('api')) return 'Live REST API client fetching repos, AST trees, issues, profiles, & contributors.';
-    if (fn.includes('mock')) return 'Fallback mock data repository store and offline demo records.';
-    if (fn.includes('reviewer') || fn.includes('code')) return 'SAST security auditor scanning code files for vulnerability risks & type safety.';
-    if (fn.includes('modal') || fn.includes('newrepo')) return 'Connects new GitHub repositories via URL parsing & automated verification.';
-    if (fn.includes('setting')) return 'Multi-model LLM provider selector (Gemini, OpenAI, Claude, Ollama) with BYOK support.';
-    if (fn.includes('vite')) return 'Vite bundler configuration with React and Tailwind CSS v4 integration.';
-    if (fn.includes('package')) return 'NPM package manifesto listing project dependencies, Lucide icons, & build scripts.';
-    if (fn.includes('css')) return 'Tailwind CSS v4 design system tokens, dark slate theme, & custom scrollbars.';
-    if (fn.includes('contributor')) return 'GitHub profile search bar, release notes generator, & Shields.io verified badges.';
-    if (fn.includes('sandbox')) return 'Interactive multi-file code editor playground with dark terminal execution console.';
-    return `Source file implementing core domain logic for ${getFileBasename(filePath)}.`;
+    if (fn.includes('dashboard')) return 'Overview stats grid, health score gauge, and top repository issues.';
+    if (fn.includes('navbar')) return 'Top app header with repository selector, global search, and settings.';
+    if (fn.includes('sidebar')) return 'Slim navigation sidebar for switching views (Dashboard, Architecture, Studio).';
+    if (fn.includes('architecture')) return 'System architecture topology pipeline, file cards grid, and tree view.';
+    if (fn.includes('issue') || fn.includes('pr')) return 'AI issue resolution studio, resolution steps, and git diff viewer.';
+    if (fn.includes('app.')) return 'Root React component managing routing state and active repository.';
+    if (fn.includes('types') || fn.includes('index.ts')) return 'TypeScript contract interfaces for Repositories, Issues, and Settings.';
+    if (fn.includes('github') || fn.includes('api')) return 'GitHub REST API client fetching repos, directory trees, and issues.';
+    if (fn.includes('mock')) return 'Fallback repository dataset for offline demonstration.';
+    if (fn.includes('reviewer') || fn.includes('code')) return 'SAST security scanner checking code for vulnerabilities and edge cases.';
+    if (fn.includes('modal') || fn.includes('newrepo')) return 'Repository connector modal parsing GitHub URLs.';
+    if (fn.includes('setting')) return 'Multi-model LLM configuration modal (Gemini, OpenAI, Claude, Ollama).';
+    if (fn.includes('vite')) return 'Vite bundler configuration with Tailwind CSS v4 setup.';
+    if (fn.includes('package')) return 'NPM package manifesto listing project dependencies and build scripts.';
+    if (fn.includes('css')) return 'Tailwind CSS v4 design system, color tokens, and custom scrollbars.';
+    if (fn.includes('contributor')) return 'GitHub contributor stats, release notes generator, and badges.';
+    if (fn.includes('sandbox')) return 'Multi-file code editor playground with interactive terminal console.';
+    return `Source file implementing logic for ${getFileBasename(filePath)}.`;
   };
 
-  // Cleanse raw folder names (like "Public" or "Src") into real System Design Architecture Layers
   const hasRawFolderNodes = repo.architectureNodes.some(n => 
     n.label.toLowerCase() === 'public' || n.label.toLowerCase() === 'src' || n.label.toLowerCase() === 'custom'
   );
@@ -82,7 +76,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: ['State & Data Routing Layer', 'GitHub REST API Client'],
       complexity: 'Medium',
       goodFirstIssueCount: 3,
-      description: `Renders interactive UI views, dashboard metrics, & navigation components for ${repo.name}.`,
+      description: `User interface components, views, dashboard metrics, and top navigation.`,
       mappedFiles: [
         'src/components/DashboardView.tsx',
         'src/components/Navbar.tsx',
@@ -99,7 +93,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: ['GitHub REST API Client'],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Manages active repository state, tab routing, and TypeScript data contracts.`,
+      description: `Application state management, view routing, and TypeScript interfaces.`,
       mappedFiles: [
         'src/App.tsx',
         'src/types/index.ts',
@@ -114,7 +108,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: ['AI & SAST Security Engine'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Queries GitHub REST API endpoints (/repos, /contents, /issues, /contributors) for ${repo.owner}/${repo.name}.`,
+      description: `REST API integration querying GitHub endpoints for repository metadata & issues.`,
       mappedFiles: [
         'src/services/githubApi.ts',
         'src/data/mockData.ts'
@@ -128,7 +122,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: ['Build & Asset Pipeline'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Multi-provider LLM engine (Gemini, OpenAI, Claude, Ollama), diff solver, and SAST code auditor.`,
+      description: `Multi-model LLM engine (Gemini, OpenAI, Claude, Ollama) & SAST security scanner.`,
       mappedFiles: [
         'src/components/CodeReviewerView.tsx',
         'src/components/NewRepoModal.tsx',
@@ -143,7 +137,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: [],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Vite bundler setup, Tailwind CSS v4 design system, and TypeScript compilation.`,
+      description: `Vite bundler config, Tailwind CSS v4 design tokens, and package manifesto.`,
       mappedFiles: [
         'vite.config.ts',
         'package.json',
@@ -157,7 +151,6 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
     ? repo.architectureNodes
     : defaultSystemNodes;
 
-  // Default tree if repo.fileTree is empty
   const defaultTree: TreeNode[] = [
     {
       id: 'tree-src',
@@ -294,30 +287,16 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
   };
 
   return (
-    <div className="flex flex-col space-y-6 text-slate-100 p-2 md:p-4 font-sans max-w-7xl mx-auto w-full">
-      {/* Educational Purpose Banner */}
-      <div className="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl space-y-2">
-        <div className="flex items-center justify-between text-indigo-300 font-semibold text-xs">
-          <span className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-400" />
-            Interactive System Design Architecture Diagram
-          </span>
-          <span className="px-2 py-0.5 rounded text-[9px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
-            System Design Topology
-          </span>
-        </div>
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Click on any <strong>System Layer Card</strong> below to expand its file cards grid! Each file card displays its <strong>exact role, content breakdown, and purpose</strong>.
-        </p>
-      </div>
-
-      {/* Header & View Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex flex-col space-y-6 text-slate-100 p-2 md:p-4 font-sans max-w-6xl mx-auto w-full">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">System Architecture & Data Flow</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Architectural topology flow for <span className="text-indigo-400 font-mono">{repo.owner}/{repo.name}</span>
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono mb-1">
+            <span>Repository Architecture</span>
+            <span>/</span>
+            <span className="text-indigo-400">{repo.owner}/{repo.name}</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-white">System Design Topology</h1>
         </div>
 
         <div className="flex items-center gap-3">
@@ -325,25 +304,25 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
           <div className="flex items-center p-1 bg-[#12121c] border border-slate-800 rounded-lg">
             <button
               onClick={() => setViewMode('graph')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 viewMode === 'graph'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <Network className="w-3.5 h-3.5" />
-              <span>Interactive System Flowchart</span>
+              <span>System Flowchart</span>
             </button>
             <button
               onClick={() => setViewMode('tree')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 viewMode === 'tree'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <FolderTree className="w-3.5 h-3.5" />
-              <span>Directory Tree View</span>
+              <span>Directory Tree</span>
             </button>
           </div>
 
@@ -352,157 +331,135 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
-              placeholder="Search layers..."
+              placeholder="Search architecture..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 pl-8 pr-3 bg-[#12121c] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition-all w-48"
+              className="h-8 pl-8 pr-3 bg-[#12121c] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition-all w-44"
             />
           </div>
         </div>
       </div>
 
-      {/* Main View Container */}
+      {/* Main Container */}
       {viewMode === 'graph' ? (
-        /* Full-Width Interactive Accordion System Architecture Flowchart */
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-[#12121c] border border-slate-800 rounded-xl text-xs font-mono text-slate-400">
-            <span className="flex items-center gap-2 text-indigo-400 font-semibold">
-              <Layers className="w-4 h-4" /> System Design Pipeline ({systemNodes.length} Layers)
-            </span>
-            <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-              Low Coupling • High Cohesion Architecture
-            </span>
-          </div>
+        <div className="relative space-y-4 pl-4 md:pl-6 border-l border-slate-800/80 my-2">
+          {systemNodes.map((node) => {
+            const isExpanded = expandedLayerId === node.id;
+            const mappedFiles = node.mappedFiles || [];
 
-          {/* Interactive Expandable Layer Cards */}
-          <div className="space-y-3">
-            {systemNodes.map((node, idx) => {
-              const isExpanded = expandedLayerId === node.id;
-              const mappedFiles = node.mappedFiles || [];
+            if (searchQuery.trim() && !node.label.toLowerCase().includes(searchQuery.toLowerCase()) && !node.description.toLowerCase().includes(searchQuery.toLowerCase())) {
+              return null;
+            }
 
-              if (searchQuery.trim() && !node.label.toLowerCase().includes(searchQuery.toLowerCase()) && !node.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return null;
-              }
+            return (
+              <div key={node.id} className="relative group">
+                {/* Connector Node Circle on Timeline */}
+                <div className="absolute -left-[23px] md:-left-[31px] top-5 w-3.5 h-3.5 rounded-full bg-[#12121c] border-2 border-indigo-500 group-hover:border-indigo-400 transition-colors flex items-center justify-center">
+                  <div className="w-1 h-1 rounded-full bg-indigo-400" />
+                </div>
 
-              return (
-                <div key={node.id} className="flex flex-col items-center space-y-2">
-                  {/* Layer Header Card */}
-                  <div
-                    onClick={() => setExpandedLayerId(isExpanded ? null : node.id)}
-                    className={`w-full p-4 rounded-xl border cursor-pointer transition-all ${
-                      isExpanded
-                        ? 'bg-indigo-600/10 border-indigo-500/60 shadow-lg shadow-indigo-500/10'
-                        : 'bg-[#12121c] border-slate-800 hover:border-slate-700 hover:bg-white/[0.02]'
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-start sm:items-center gap-3.5">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
-                          0{idx + 1}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-white tracking-wide">{node.label}</span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-white/[0.05] text-indigo-300 border border-white/[0.08]">
-                              {node.type}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{node.description}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                        <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                          {mappedFiles.length || node.fileCount} mapped files
+                {/* Layer Card */}
+                <div
+                  onClick={() => setExpandedLayerId(isExpanded ? null : node.id)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                    isExpanded
+                      ? 'bg-[#12121c] border-indigo-500/50 shadow-md shadow-indigo-500/5'
+                      : 'bg-[#0f0f16] border-slate-800/90 hover:border-slate-700 hover:bg-[#12121c]'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-sm font-semibold text-white tracking-tight">{node.label}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-white/[0.04] border border-white/[0.06] capitalize">
+                          {node.type}
                         </span>
-                        <div className="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-slate-400">
-                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                        </div>
                       </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">{node.description}</p>
                     </div>
 
-                    {/* Expanded Grid of Mapped Source File Cards */}
-                    {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-indigo-500/20 space-y-3 cursor-default" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                            <Cpu className="w-3.5 h-3.5" /> Source File Roles & Content Descriptions ({mappedFiles.length})
-                          </span>
-                          <button
-                            onClick={() => onNavigateTab('issue-studio')}
-                            className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-1"
-                          >
-                            <span>Solve Issues in {node.label}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-
-                        {/* File Cards Grid with Content Descriptions */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {mappedFiles.map((filePath, fIdx) => {
-                            const filename = getFileBasename(filePath);
-                            const isCopied = copiedFile === filePath;
-                            const description = getFileDescription(filePath);
-
-                            return (
-                              <div
-                                key={fIdx}
-                                className="p-3.5 bg-[#0a0a0f] border border-slate-800 hover:border-indigo-500/40 rounded-xl transition-all flex flex-col justify-between space-y-2.5 group"
-                              >
-                                <div className="space-y-1.5">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex items-center gap-2 truncate">
-                                      <FileCode className="w-4 h-4 text-indigo-400 shrink-0" />
-                                      <span className="font-mono text-xs font-bold text-white truncate" title={filename}>
-                                        {filename}
-                                      </span>
-                                    </div>
-                                    <button
-                                      onClick={() => copyToClipboard(filePath)}
-                                      title="Copy file path"
-                                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
-                                    >
-                                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                                    </button>
-                                  </div>
-
-                                  <span className="font-mono text-[10px] text-slate-500 block truncate" title={filePath}>
-                                    {filePath}
-                                  </span>
-
-                                  {/* Plain English File Content Description */}
-                                  <p className="text-[11px] text-slate-300 leading-snug bg-white/[0.02] p-2 rounded-lg border border-white/[0.04]">
-                                    {description}
-                                  </p>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-white/[0.04] text-[10px]">
-                                  <span className="px-1.5 py-0.5 rounded bg-white/[0.05] text-indigo-300 font-sans border border-white/[0.08]">
-                                    {filename.endsWith('.tsx') ? 'React UI Component' : filename.endsWith('.ts') ? 'TypeScript Logic' : 'Config File'}
-                                  </span>
-                                  <span className="text-indigo-400 group-hover:underline cursor-pointer flex items-center gap-0.5" onClick={() => onNavigateTab('code-reviewer')}>
-                                    <span>Review SAST</span>
-                                    <ArrowRight className="w-3 h-3" />
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
+                    <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                      <span className="text-xs font-mono text-slate-400 bg-white/[0.03] px-2.5 py-1 rounded-md border border-white/[0.06]">
+                        {mappedFiles.length || node.fileCount} files
+                      </span>
+                      <div className="w-6 h-6 rounded flex items-center justify-center text-slate-400">
+                        {isExpanded ? <ChevronDown className="w-4 h-4 text-indigo-400" /> : <ChevronRight className="w-4 h-4" />}
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  {/* Flowchart Connector Arrow */}
-                  {idx < systemNodes.length - 1 && (
-                    <div className="flex items-center justify-center text-indigo-400/60 my-0.5">
-                      <ArrowDown className="w-4 h-4 animate-pulse" />
+                  {/* Expanded File Cards Grid */}
+                  {isExpanded && (
+                    <div className="mt-4 pt-4 border-t border-slate-800 space-y-3 cursor-default" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
+                          <GitCommit className="w-3.5 h-3.5 text-indigo-400" />
+                          Source Files in {node.label}
+                        </span>
+                        <button
+                          onClick={() => onNavigateTab('issue-studio')}
+                          className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <span>Solve Issues</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* File Cards Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {mappedFiles.map((filePath, fIdx) => {
+                          const filename = getFileBasename(filePath);
+                          const isCopied = copiedFile === filePath;
+                          const description = getFileDescription(filePath);
+
+                          return (
+                            <div
+                              key={fIdx}
+                              className="p-3 bg.bg-[#0a0a0e] bg-[#0c0c12] border border-slate-800/80 hover:border-slate-700 rounded-lg transition-all space-y-2 group"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2 truncate">
+                                  <FileCode className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                                  <span className="font-mono text-xs font-bold text-white truncate" title={filename}>
+                                    {filename}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => copyToClipboard(filePath)}
+                                  title="Copy file path"
+                                  className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
+                                >
+                                  {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                </button>
+                              </div>
+
+                              <p className="font-mono text-[10px] text-slate-500 truncate" title={filePath}>
+                                {filePath}
+                              </p>
+
+                              <p className="text-[11px] text-slate-300 leading-relaxed bg-[#07070a] p-2 rounded border border-slate-800/50">
+                                {description}
+                              </p>
+
+                              <div className="flex items-center justify-between pt-1 text-[10px]">
+                                <span className="text-slate-400 font-mono">
+                                  {filename.endsWith('.tsx') ? 'React View' : filename.endsWith('.ts') ? 'TypeScript' : 'Config'}
+                                </span>
+                                <span className="text-indigo-400 group-hover:underline cursor-pointer flex items-center gap-0.5" onClick={() => onNavigateTab('code-reviewer')}>
+                                  <span>Audit SAST</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       ) : (
         /* Full-Width Directory Tree Mode */
