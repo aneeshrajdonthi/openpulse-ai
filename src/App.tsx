@@ -45,7 +45,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0a0a0f] text-slate-200 font-sans selection:bg-indigo-500/30">
+    <div className="flex flex-col min-h-screen bg-black text-zinc-100 font-sans selection:bg-zinc-800">
       {/* Navbar */}
       <Navbar 
         repositories={repositories}

@@ -1,4 +1,3 @@
-// Sidebar.tsx
 import { 
   LayoutDashboard, 
   Layers, 
@@ -41,11 +40,11 @@ export function Sidebar({ activeTab, onTabChange, openIssuesCount }: SidebarProp
   ];
 
   return (
-    <aside className="w-60 h-[calc(100vh-4rem)] sticky top-16 flex flex-col bg-[#0c0c14] border-r border-white/5 shrink-0">
+    <aside className="w-56 h-[calc(100vh-3.5rem)] sticky top-14 flex flex-col bg-black border-r border-zinc-800 shrink-0 select-none">
       <div className="flex-1 overflow-y-auto py-4">
         {navGroups.map((group, idx) => (
-          <div key={idx} className="mb-6 px-3">
-            <h3 className="mb-2 px-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+          <div key={idx} className="mb-5 px-3">
+            <h3 className="mb-2 px-2 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider font-mono">
               {group.title}
             </h3>
             <div className="space-y-0.5">
@@ -56,22 +55,19 @@ export function Sidebar({ activeTab, onTabChange, openIssuesCount }: SidebarProp
                   <button
                     key={item.id}
                     onClick={() => onTabChange(item.id)}
-                    className={`w-full flex items-center justify-between px-2 py-1.5 text-sm rounded-md transition-colors relative ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md transition-colors relative ${
                       isActive 
-                        ? 'bg-white/5 text-indigo-400' 
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                        ? 'bg-zinc-800/80 text-white font-semibold border border-zinc-700/60 shadow-sm' 
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
                     }`}
                   >
-                    {isActive && (
-                      <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-indigo-500 rounded-r" />
-                    )}
                     <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4" />
-                      <span className="font-medium">{item.label}</span>
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-400'}`} />
+                      <span>{item.label}</span>
                     </div>
                     {item.badge !== undefined && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                        isActive ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/10 text-slate-400'
+                      <span className={`text-[10px] px-1.5 py-0.2 font-mono rounded ${
+                        isActive ? 'bg-zinc-700 text-white font-semibold' : 'bg-zinc-800 text-zinc-400'
                       }`}>
                         {item.badge}
                       </span>
@@ -84,10 +80,10 @@ export function Sidebar({ activeTab, onTabChange, openIssuesCount }: SidebarProp
         ))}
       </div>
       
-      <div className="p-4 border-t border-white/5 mt-auto">
-        <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-slate-400">
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="font-medium">AI Engine Online</span>
+      <div className="p-3 border-t border-zinc-800 mt-auto">
+        <div className="flex items-center gap-2 px-2 py-1 text-xs text-zinc-400 font-mono">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span>AI Engine Online</span>
         </div>
       </div>
     </aside>
