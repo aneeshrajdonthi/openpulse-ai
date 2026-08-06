@@ -36,6 +36,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
     fileSize?: string;
     moduleType?: string;
     connections?: string[];
+    mappedFiles?: string[];
   } | null>(null);
 
   // Cleanse raw folder names (like "Public" or "Src") into real System Design Architecture Layers
@@ -48,41 +49,62 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       id: 'node-ui-presentation',
       label: 'UI & Presentation Layer',
       type: 'component',
-      fileCount: 8,
+      fileCount: 5,
       connections: ['State & Data Routing Layer', 'GitHub REST API Client'],
       complexity: 'Medium',
       goodFirstIssueCount: 3,
-      description: `Renders interactive UI views, dashboard metrics, & navigation for ${repo.name}.`
+      description: `Renders interactive UI views, dashboard metrics, & navigation components for ${repo.name}.`,
+      mappedFiles: [
+        'src/components/DashboardView.tsx',
+        'src/components/Navbar.tsx',
+        'src/components/Sidebar.tsx',
+        'src/components/ArchitectureGraphView.tsx',
+        'src/components/IssuePRStudioView.tsx'
+      ]
     },
     {
       id: 'node-state-routing',
       label: 'State & Data Routing Layer',
       type: 'core',
-      fileCount: 4,
+      fileCount: 3,
       connections: ['GitHub REST API Client'],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Manages active repository state, tab routing, and TypeScript data contracts.`
+      description: `Manages active repository state, tab routing, and TypeScript data contracts.`,
+      mappedFiles: [
+        'src/App.tsx',
+        'src/types/index.ts',
+        'src/main.tsx'
+      ]
     },
     {
       id: 'node-api-client',
       label: 'GitHub REST API Client',
       type: 'api',
-      fileCount: 3,
+      fileCount: 2,
       connections: ['AI & SAST Security Engine'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Queries GitHub REST API endpoints (/repos, /contents, /issues, /contributors) for ${repo.owner}/${repo.name}.`
+      description: `Queries GitHub REST API endpoints (/repos, /contents, /issues, /contributors) for ${repo.owner}/${repo.name}.`,
+      mappedFiles: [
+        'src/services/githubApi.ts',
+        'src/data/mockData.ts'
+      ]
     },
     {
       id: 'node-ai-engine',
       label: 'AI & SAST Security Engine',
       type: 'core',
-      fileCount: 5,
+      fileCount: 3,
       connections: ['Build & Asset Pipeline'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Multi-provider LLM engine (Gemini, OpenAI, Claude, Ollama), diff solver, and SAST code auditor.`
+      description: `Multi-provider LLM engine (Gemini, OpenAI, Claude, Ollama), diff solver, and SAST code auditor.`,
+      mappedFiles: [
+        'src/components/CodeReviewerView.tsx',
+        'src/components/NewRepoModal.tsx',
+        'src/components/AISettingsModal.tsx'
+      ]
     },
     {
       id: 'node-build-pipeline',
@@ -92,7 +114,13 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
       connections: [],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Vite bundler setup, Tailwind CSS v4 design system, and TypeScript compilation.`
+      description: `Vite bundler setup, Tailwind CSS v4 design system, and TypeScript compilation.`,
+      mappedFiles: [
+        'vite.config.ts',
+        'package.json',
+        'src/index.css',
+        'tsconfig.json'
+      ]
     }
   ];
 
@@ -172,9 +200,16 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
     path: `architecture/${systemNodes[0]?.id || 'ui-presentation'}`,
     type: 'system' as const,
     description: systemNodes[0]?.description || `Renders interactive UI views, dashboard metrics, & navigation for ${repo.name}.`,
-    fileSize: `${systemNodes[0]?.fileCount || 8} files`,
+    fileSize: `${systemNodes[0]?.mappedFiles?.length || 5} files`,
     moduleType: systemNodes[0]?.type || 'component',
-    connections: systemNodes[0]?.connections || ['State & Data Routing Layer', 'GitHub REST API Client']
+    connections: systemNodes[0]?.connections || ['State & Data Routing Layer', 'GitHub REST API Client'],
+    mappedFiles: systemNodes[0]?.mappedFiles || [
+      'src/components/DashboardView.tsx',
+      'src/components/Navbar.tsx',
+      'src/components/Sidebar.tsx',
+      'src/components/ArchitectureGraphView.tsx',
+      'src/components/IssuePRStudioView.tsx'
+    ]
   };
 
   const renderTreeNodes = (nodes: TreeNode[], depth = 0) => {
@@ -200,7 +235,8 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
                 type: node.type,
                 description: node.description || `${isFolder ? 'Folder' : 'File'} at ${node.path}`,
                 fileSize: node.fileSize || (isFolder ? 'Directory' : '1.5 KB'),
-                moduleType: node.moduleType || (isFolder ? 'core' : 'component')
+                moduleType: node.moduleType || (isFolder ? 'core' : 'component'),
+                mappedFiles: [node.path]
               });
             }}
             style={{ paddingLeft: `${depth * 18 + 12}px` }}
@@ -273,7 +309,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
           </span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          GitHub only shows a plain list of folders. OpenPulse AI parses your codebase's <strong>System Architecture Layers</strong> (UI Layer ➔ State Routing ➔ REST API Client ➔ AI & SAST Engine ➔ Build Pipeline) and displays a directional data flow diagram so you understand how data flows through the application.
+          GitHub only shows a plain list of folders. OpenPulse AI parses your codebase's <strong>System Architecture Layers</strong> (UI Layer ➔ State Routing ➔ REST API Client ➔ AI & SAST Engine ➔ Build Pipeline) and maps the exact files belonging to each layer. Click any layer to see its mapped source files!
         </p>
       </div>
 
@@ -355,9 +391,10 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
                           path: `architecture/${node.id}`,
                           type: 'system',
                           description: node.description,
-                          fileSize: `${node.fileCount} files`,
+                          fileSize: `${node.mappedFiles?.length || node.fileCount} files`,
                           moduleType: node.type,
-                          connections: node.connections
+                          connections: node.connections,
+                          mappedFiles: node.mappedFiles
                         })}
                         className={`w-full p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
                           isSelected
@@ -380,7 +417,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
                             {node.type}
                           </span>
                           <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-                            {node.fileCount} files
+                            {node.mappedFiles?.length || node.fileCount} files
                           </span>
                         </div>
                       </div>
@@ -437,6 +474,33 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
               <div>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Layer Type</span>
                 <span className="text-sm font-bold text-indigo-400 font-mono capitalize">{activeItem.moduleType || 'core'}</span>
+              </div>
+            </div>
+
+            {/* Mapped Files List Section */}
+            <div className="space-y-2 pt-1 text-xs">
+              <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider block">
+                Mapped Source Files ({activeItem.mappedFiles?.length || 0})
+              </span>
+              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                {activeItem.mappedFiles && activeItem.mappedFiles.length > 0 ? (
+                  activeItem.mappedFiles.map((file, idx) => (
+                    <div 
+                      key={idx} 
+                      className="p-2 bg-[#0a0a0f] rounded-lg border border-slate-800 flex items-center justify-between font-mono text-[11px] text-slate-200 hover:border-indigo-500/40 transition-colors"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <FileCode className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                        <span className="truncate">{file}</span>
+                      </div>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06] shrink-0 font-sans">
+                        {file.endsWith('.tsx') ? 'Component' : file.endsWith('.ts') ? 'Module' : 'Config'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <span className="text-slate-500 italic text-[11px]">No specific files mapped</span>
+                )}
               </div>
             </div>
 

@@ -43,6 +43,7 @@ export interface ArchNode {
   complexity: 'Low' | 'Medium' | 'High';
   goodFirstIssueCount: number;
   description: string;
+  mappedFiles?: string[];
 }
 
 export interface IssueItem {

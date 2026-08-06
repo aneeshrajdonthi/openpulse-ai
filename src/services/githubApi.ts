@@ -134,7 +134,8 @@ export async function fetchRealGitHubRepo(
       connections: ['node-state-management', 'node-api-client'],
       complexity: 'Medium',
       goodFirstIssueCount: 3,
-      description: `Renders interactive UI views, dashboard metrics, & navigation for ${repoData.name}.`
+      description: `Renders interactive UI views, dashboard metrics, & navigation for ${repoData.name}.`,
+      mappedFiles: ['src/components/DashboardView.tsx', 'src/components/Navbar.tsx', 'src/components/Sidebar.tsx', 'src/components/ArchitectureGraphView.tsx', 'src/components/IssuePRStudioView.tsx']
     },
     {
       id: 'node-state-management',
@@ -144,7 +145,8 @@ export async function fetchRealGitHubRepo(
       connections: ['node-api-client'],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Manages active repository state, tab routing, and type contracts.`
+      description: `Manages active repository state, tab routing, and type contracts.`,
+      mappedFiles: ['src/App.tsx', 'src/types/index.ts', 'src/main.tsx']
     },
     {
       id: 'node-api-client',
@@ -154,7 +156,8 @@ export async function fetchRealGitHubRepo(
       connections: ['node-ai-engine'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Queries GitHub REST API endpoints (/repos, /contents, /issues, /contributors) for ${repoData.full_name}.`
+      description: `Queries GitHub REST API endpoints (/repos, /contents, /issues, /contributors) for ${repoData.full_name}.`,
+      mappedFiles: ['src/services/githubApi.ts', 'src/data/mockData.ts']
     },
     {
       id: 'node-ai-engine',
@@ -164,7 +167,8 @@ export async function fetchRealGitHubRepo(
       connections: ['node-build-pipeline'],
       complexity: 'High',
       goodFirstIssueCount: 2,
-      description: `Multi-model LLM engine (Gemini, OpenAI, Claude, Ollama), diff solver, and SAST code auditor.`
+      description: `Multi-provider LLM engine (Gemini, OpenAI, Claude, Ollama), diff solver, and SAST code auditor.`,
+      mappedFiles: ['src/components/CodeReviewerView.tsx', 'src/components/NewRepoModal.tsx', 'src/components/AISettingsModal.tsx']
     },
     {
       id: 'node-build-pipeline',
@@ -174,7 +178,8 @@ export async function fetchRealGitHubRepo(
       connections: [],
       complexity: 'Low',
       goodFirstIssueCount: 1,
-      description: `Vite bundler setup, Tailwind CSS v4 design system, and TypeScript compilation.`
+      description: `Vite bundler setup, Tailwind CSS v4 design system, and TypeScript compilation.`,
+      mappedFiles: ['vite.config.ts', 'package.json', 'src/index.css', 'tsconfig.json']
     }
   ];
 
