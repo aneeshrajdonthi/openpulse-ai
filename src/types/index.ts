@@ -20,6 +20,18 @@ export interface Repository {
   architectureNodes: ArchNode[];
   issues: IssueItem[];
   codeReviewFiles?: CodeReviewFile[];
+  fileTree?: TreeNode[];
+}
+
+export interface TreeNode {
+  id: string;
+  name: string;
+  type: 'folder' | 'file';
+  path: string;
+  children?: TreeNode[];
+  moduleType?: 'core' | 'component' | 'utility' | 'api' | 'config';
+  fileSize?: string;
+  description?: string;
 }
 
 export interface ArchNode {
