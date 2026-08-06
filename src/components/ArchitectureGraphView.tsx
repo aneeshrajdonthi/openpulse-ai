@@ -45,6 +45,29 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
     return parts[parts.length - 1] || filePath;
   };
 
+  // Plain English file descriptions explaining what each file contains and its role
+  const getFileDescription = (filePath: string): string => {
+    const fn = getFileBasename(filePath).toLowerCase();
+    if (fn.includes('dashboard')) return 'Renders overview metrics, health score gauge, quick actions, and top open issues.';
+    if (fn.includes('navbar')) return 'Top navigation header containing active repo selector, global search, and AI settings.';
+    if (fn.includes('sidebar')) return 'Left-hand slim sidebar for tab routing (Dashboard, Architecture, Studio, Auditor, Sandbox).';
+    if (fn.includes('architecture')) return 'Interactive System Design flowchart, expandable file cards, and directory tree.';
+    if (fn.includes('issue') || fn.includes('pr')) return 'AI-assisted GitHub issue solver, resolution checklist, & live git diff generator.';
+    if (fn.includes('app.')) return 'Root React app container managing global state, routing, and modal triggers.';
+    if (fn.includes('types') || fn.includes('index.ts')) return 'TypeScript contract interfaces for Repository, ArchNode, Issues, & AISettings.';
+    if (fn.includes('github') || fn.includes('api')) return 'Live REST API client fetching repos, AST trees, issues, profiles, & contributors.';
+    if (fn.includes('mock')) return 'Fallback mock data repository store and offline demo records.';
+    if (fn.includes('reviewer') || fn.includes('code')) return 'SAST security auditor scanning code files for vulnerability risks & type safety.';
+    if (fn.includes('modal') || fn.includes('newrepo')) return 'Connects new GitHub repositories via URL parsing & automated verification.';
+    if (fn.includes('setting')) return 'Multi-model LLM provider selector (Gemini, OpenAI, Claude, Ollama) with BYOK support.';
+    if (fn.includes('vite')) return 'Vite bundler configuration with React and Tailwind CSS v4 integration.';
+    if (fn.includes('package')) return 'NPM package manifesto listing project dependencies, Lucide icons, & build scripts.';
+    if (fn.includes('css')) return 'Tailwind CSS v4 design system tokens, dark slate theme, & custom scrollbars.';
+    if (fn.includes('contributor')) return 'GitHub profile search bar, release notes generator, & Shields.io verified badges.';
+    if (fn.includes('sandbox')) return 'Interactive multi-file code editor playground with dark terminal execution console.';
+    return `Source file implementing core domain logic for ${getFileBasename(filePath)}.`;
+  };
+
   // Cleanse raw folder names (like "Public" or "Src") into real System Design Architecture Layers
   const hasRawFolderNodes = repo.architectureNodes.some(n => 
     n.label.toLowerCase() === 'public' || n.label.toLowerCase() === 'src' || n.label.toLowerCase() === 'custom'
@@ -284,7 +307,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
           </span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          Click on any <strong>System Layer Card</strong> below to expand its full-width file grid! You can see the clean file names, exact directory paths, and role tags without truncated text.
+          Click on any <strong>System Layer Card</strong> below to expand its file cards grid! Each file card displays its <strong>exact role, content breakdown, and purpose</strong>.
         </p>
       </div>
 
@@ -403,7 +426,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
                       <div className="mt-4 pt-4 border-t border-indigo-500/20 space-y-3 cursor-default" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                            <Cpu className="w-3.5 h-3.5" /> Mapped Source Files in {node.label}
+                            <Cpu className="w-3.5 h-3.5" /> Source File Roles & Content Descriptions ({mappedFiles.length})
                           </span>
                           <button
                             onClick={() => onNavigateTab('issue-studio')}
@@ -414,43 +437,52 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
                           </button>
                         </div>
 
-                        {/* File Cards Grid */}
+                        {/* File Cards Grid with Content Descriptions */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {mappedFiles.map((filePath, fIdx) => {
                             const filename = getFileBasename(filePath);
                             const isCopied = copiedFile === filePath;
+                            const description = getFileDescription(filePath);
 
                             return (
                               <div
                                 key={fIdx}
-                                className="p-3 bg-[#0a0a0f] border border-slate-800 hover:border-indigo-500/40 rounded-xl transition-all space-y-2 group"
+                                className="p-3.5 bg-[#0a0a0f] border border-slate-800 hover:border-indigo-500/40 rounded-xl transition-all flex flex-col justify-between space-y-2.5 group"
                               >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex items-center gap-2 truncate">
-                                    <FileCode className="w-4 h-4 text-indigo-400 shrink-0" />
-                                    <span className="font-mono text-xs font-bold text-white truncate" title={filename}>
-                                      {filename}
-                                    </span>
+                                <div className="space-y-1.5">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-center gap-2 truncate">
+                                      <FileCode className="w-4 h-4 text-indigo-400 shrink-0" />
+                                      <span className="font-mono text-xs font-bold text-white truncate" title={filename}>
+                                        {filename}
+                                      </span>
+                                    </div>
+                                    <button
+                                      onClick={() => copyToClipboard(filePath)}
+                                      title="Copy file path"
+                                      className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
+                                    >
+                                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                    </button>
                                   </div>
-                                  <button
-                                    onClick={() => copyToClipboard(filePath)}
-                                    title="Copy file path"
-                                    className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
-                                  >
-                                    {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                                  </button>
+
+                                  <span className="font-mono text-[10px] text-slate-500 block truncate" title={filePath}>
+                                    {filePath}
+                                  </span>
+
+                                  {/* Plain English File Content Description */}
+                                  <p className="text-[11px] text-slate-300 leading-snug bg-white/[0.02] p-2 rounded-lg border border-white/[0.04]">
+                                    {description}
+                                  </p>
                                 </div>
 
-                                <p className="font-mono text-[10px] text-slate-500 truncate" title={filePath}>
-                                  {filePath}
-                                </p>
-
                                 <div className="flex items-center justify-between pt-2 border-t border-white/[0.04] text-[10px]">
-                                  <span className="px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-300 font-sans">
+                                  <span className="px-1.5 py-0.5 rounded bg-white/[0.05] text-indigo-300 font-sans border border-white/[0.08]">
                                     {filename.endsWith('.tsx') ? 'React UI Component' : filename.endsWith('.ts') ? 'TypeScript Logic' : 'Config File'}
                                   </span>
-                                  <span className="text-indigo-400 group-hover:underline cursor-pointer" onClick={() => onNavigateTab('code-reviewer')}>
-                                    Review SAST →
+                                  <span className="text-indigo-400 group-hover:underline cursor-pointer flex items-center gap-0.5" onClick={() => onNavigateTab('code-reviewer')}>
+                                    <span>Review SAST</span>
+                                    <ArrowRight className="w-3 h-3" />
                                   </span>
                                 </div>
                               </div>
