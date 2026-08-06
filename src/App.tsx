@@ -58,7 +58,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`flex flex-col min-h-screen font-sans transition-colors ${
-      isLight ? 'bg-slate-50 text-slate-900 selection:bg-slate-200' : 'bg-black text-zinc-100 selection:bg-zinc-800'
+      isLight ? 'bg-[#fafafa] text-zinc-900 selection:bg-zinc-200' : 'bg-black text-zinc-100 selection:bg-zinc-800'
     }`}>
       {/* Navbar */}
       <Navbar 
@@ -108,7 +108,7 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className={`border-t py-4 text-center text-xs font-mono transition-colors ${
-        isLight ? 'bg-white border-slate-200 text-slate-500' : 'bg-black border-zinc-800/80 text-zinc-500'
+        isLight ? 'bg-white border-zinc-200 text-zinc-500' : 'bg-black border-zinc-800/80 text-zinc-500'
       }`}>
         <p>&copy; {new Date().getFullYear()} OpenPulse AI. All rights reserved.</p>
       </footer>

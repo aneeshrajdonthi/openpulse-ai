@@ -42,22 +42,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <nav className={`h-14 sticky top-0 z-40 flex items-center justify-between px-4 border-b transition-colors ${
       isLight 
-        ? 'bg-white/95 backdrop-blur-md border-slate-200 text-slate-800' 
+        ? 'bg-white/90 backdrop-blur-md border-zinc-200 text-zinc-900 shadow-xs' 
         : 'bg-black/95 backdrop-blur-md border-zinc-800 text-zinc-200'
     }`}>
       {/* Left section: Logo and Brand */}
       <div className="flex items-center gap-3">
-        <div className={`flex items-center justify-center w-8 h-8 rounded-lg border shadow-sm ${
-          isLight ? 'bg-slate-900 border-slate-700 text-white' : 'bg-zinc-800 border-zinc-700 text-white'
+        <div className={`flex items-center justify-center w-8 h-8 rounded-lg border shadow-xs ${
+          isLight ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-zinc-800 border-zinc-700 text-white'
         }`}>
           <Activity size={18} />
         </div>
         <div className="flex items-center gap-2">
-          <span className={`font-bold text-sm tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+          <span className={`font-bold text-sm tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
             OpenPulse AI
           </span>
           <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none border ${
-            isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-zinc-800 border-zinc-700 text-zinc-300'
+            isLight ? 'bg-zinc-100 border-zinc-200 text-zinc-700 font-semibold' : 'bg-zinc-800 border-zinc-700 text-zinc-300'
           }`}>
             v2.0
           </span>
@@ -69,22 +69,22 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsRepoDropdownOpen(!isRepoDropdownOpen)}
-            className={`flex items-center gap-2 h-8 px-3 rounded-md border transition-colors text-xs font-mono font-medium ${
+            className={`flex items-center gap-2 h-8 px-3 rounded-md border transition-colors text-xs font-mono font-semibold ${
               isLight 
-                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800' 
+                ? 'bg-zinc-100/80 hover:bg-zinc-200/70 border-zinc-200 text-zinc-900' 
                 : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-200'
             }`}
           >
             {selectedRepo ? `${selectedRepo.owner}/${selectedRepo.name}` : 'Select Repository'}
-            <ChevronDown size={14} className={isLight ? 'text-slate-500' : 'text-zinc-400'} />
+            <ChevronDown size={14} className={isLight ? 'text-zinc-500' : 'text-zinc-400'} />
           </button>
 
           {isRepoDropdownOpen && (
-            <div className={`absolute top-full left-0 mt-1 w-64 border rounded-lg shadow-2xl py-1 z-50 ${
-              isLight ? 'bg-white border-slate-200' : 'bg-zinc-900 border-zinc-800'
+            <div className={`absolute top-full left-0 mt-1 w-64 border rounded-lg shadow-xl py-1 z-50 ${
+              isLight ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800'
             }`}>
-              <div className={`px-3 py-2 border-b ${isLight ? 'border-slate-100' : 'border-zinc-800'}`}>
-                <span className={`text-[10px] font-semibold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-zinc-400'}`}>
+              <div className={`px-3 py-2 border-b ${isLight ? 'border-zinc-100' : 'border-zinc-800'}`}>
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${isLight ? 'text-zinc-400' : 'text-zinc-400'}`}>
                   Repositories
                 </span>
               </div>
@@ -98,23 +98,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md font-mono transition-colors ${
                       selectedRepo?.id === repo.id
-                        ? isLight ? 'bg-slate-100 text-slate-900 font-bold' : 'bg-zinc-800 text-white font-semibold'
-                        : isLight ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-300 hover:bg-zinc-800/60'
+                        ? isLight ? 'bg-zinc-100 text-zinc-900 font-bold' : 'bg-zinc-800 text-white font-semibold'
+                        : isLight ? 'text-zinc-700 hover:bg-zinc-50' : 'text-zinc-300 hover:bg-zinc-800/60'
                     }`}
                   >
                     <span className="truncate">{repo.owner}/{repo.name}</span>
-                    {selectedRepo?.id === repo.id && <Check size={14} className={isLight ? 'text-slate-900' : 'text-emerald-400'} />}
+                    {selectedRepo?.id === repo.id && <Check size={14} className={isLight ? 'text-zinc-900' : 'text-emerald-400'} />}
                   </button>
                 ))}
               </div>
-              <div className={`p-1 border-t ${isLight ? 'border-slate-100' : 'border-zinc-800'}`}>
+              <div className={`p-1 border-t ${isLight ? 'border-zinc-100' : 'border-zinc-800'}`}>
                 <button
                   onClick={() => {
                     onOpenNewRepoModal();
                     setIsRepoDropdownOpen(false);
                   }}
                   className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                    isLight ? 'text-slate-800 hover:bg-slate-100' : 'text-zinc-300 hover:bg-zinc-800'
+                    isLight ? 'text-zinc-800 hover:bg-zinc-100' : 'text-zinc-300 hover:bg-zinc-800'
                   }`}
                 >
                   <Plus size={14} />
@@ -126,13 +126,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         <div className="flex-1 relative flex items-center">
-          <Search size={14} className={`absolute left-3 ${isLight ? 'text-slate-400' : 'text-zinc-500'}`} />
+          <Search size={14} className={`absolute left-3 ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`} />
           <input
             type="text"
             placeholder="Search files, modules, or ask AI..."
             className={`w-full h-8 pl-9 pr-3 border rounded-md text-xs font-mono transition-all focus:outline-none ${
               isLight 
-                ? 'bg-slate-100 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-slate-400' 
+                ? 'bg-zinc-100/70 border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white' 
                 : 'bg-zinc-900/80 border-zinc-800 text-zinc-200 placeholder:text-zinc-500 focus:border-zinc-600'
             }`}
           />
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={onToggleTheme}
           className={`p-2 rounded-md transition-colors ${
             isLight 
-              ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' 
+              ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' 
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
           }`}
           title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={onOpenAISettings}
           className={`p-2 rounded-md transition-colors ${
             isLight 
-              ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' 
+              ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' 
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
           }`}
           title="AI Settings"
@@ -168,16 +168,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={onToggleBeginnerGuide}
           className={`text-xs font-medium px-3 h-8 flex items-center transition-colors ${
-            isLight ? 'text-slate-600 hover:text-slate-900' : 'text-zinc-400 hover:text-white'
+            isLight ? 'text-zinc-600 hover:text-zinc-900' : 'text-zinc-400 hover:text-white'
           }`}
         >
           Beginner Guide
         </button>
         <button
           onClick={onOpenNewRepoModal}
-          className={`h-8 px-3.5 text-xs font-semibold rounded-md shadow-sm transition-colors flex items-center gap-1.5 ${
+          className={`h-8 px-3.5 text-xs font-semibold rounded-md shadow-xs transition-colors flex items-center gap-1.5 ${
             isLight 
-              ? 'bg-slate-900 hover:bg-slate-800 text-white' 
+              ? 'bg-zinc-900 hover:bg-zinc-800 text-white' 
               : 'bg-white hover:bg-zinc-200 text-black'
           }`}
         >
