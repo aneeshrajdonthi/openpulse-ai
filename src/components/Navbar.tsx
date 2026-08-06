@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Activity, ChevronDown, Search, Plus, Check, SlidersHorizontal } from 'lucide-react';
+import { Activity, ChevronDown, Search, Plus, Check, SlidersHorizontal, Sun, Moon } from 'lucide-react';
 import type { Repository, AISettings } from '../types';
 
 interface NavbarProps {
@@ -10,6 +10,8 @@ interface NavbarProps {
   aiSettings: AISettings;
   onOpenAISettings: () => void;
   onToggleBeginnerGuide: () => void;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -19,6 +21,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNewRepoModal,
   onOpenAISettings,
   onToggleBeginnerGuide,
+  theme,
+  onToggleTheme,
 }) => {
   const [isRepoDropdownOpen, setIsRepoDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -33,16 +37,28 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const isLight = theme === 'light';
+
   return (
-    <nav className="h-14 bg-black/95 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-40 flex items-center justify-between px-4 text-zinc-200">
+    <nav className={`h-14 sticky top-0 z-40 flex items-center justify-between px-4 border-b transition-colors ${
+      isLight 
+        ? 'bg-white/95 backdrop-blur-md border-slate-200 text-slate-800' 
+        : 'bg-black/95 backdrop-blur-md border-zinc-800 text-zinc-200'
+    }`}>
       {/* Left section: Logo and Brand */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 text-white shadow-sm">
-          <Activity size={18} className="text-zinc-200" />
+        <div className={`flex items-center justify-center w-8 h-8 rounded-lg border shadow-sm ${
+          isLight ? 'bg-slate-900 border-slate-700 text-white' : 'bg-zinc-800 border-zinc-700 text-white'
+        }`}>
+          <Activity size={18} />
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-bold text-white text-sm tracking-tight">OpenPulse AI</span>
-          <span className="px-1.5 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-mono leading-none">
+          <span className={`font-bold text-sm tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            OpenPulse AI
+          </span>
+          <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono leading-none border ${
+            isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-zinc-800 border-zinc-700 text-zinc-300'
+          }`}>
             v2.0
           </span>
         </div>
@@ -53,16 +69,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsRepoDropdownOpen(!isRepoDropdownOpen)}
-            className="flex items-center gap-2 h-8 px-3 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs font-mono font-medium text-zinc-200"
+            className={`flex items-center gap-2 h-8 px-3 rounded-md border transition-colors text-xs font-mono font-medium ${
+              isLight 
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-800' 
+                : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-200'
+            }`}
           >
             {selectedRepo ? `${selectedRepo.owner}/${selectedRepo.name}` : 'Select Repository'}
-            <ChevronDown size={14} className="text-zinc-400" />
+            <ChevronDown size={14} className={isLight ? 'text-slate-500' : 'text-zinc-400'} />
           </button>
 
           {isRepoDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl py-1 z-50">
-              <div className="px-3 py-2 border-b border-zinc-800">
-                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Repositories</span>
+            <div className={`absolute top-full left-0 mt-1 w-64 border rounded-lg shadow-2xl py-1 z-50 ${
+              isLight ? 'bg-white border-slate-200' : 'bg-zinc-900 border-zinc-800'
+            }`}>
+              <div className={`px-3 py-2 border-b ${isLight ? 'border-slate-100' : 'border-zinc-800'}`}>
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-zinc-400'}`}>
+                  Repositories
+                </span>
               </div>
               <div className="max-h-64 overflow-y-auto p-1 space-y-0.5">
                 {repositories.map((repo) => (
@@ -74,22 +98,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md font-mono transition-colors ${
                       selectedRepo?.id === repo.id
-                        ? 'bg-zinc-800 text-white font-semibold'
-                        : 'text-zinc-300 hover:bg-zinc-800/60'
+                        ? isLight ? 'bg-slate-100 text-slate-900 font-bold' : 'bg-zinc-800 text-white font-semibold'
+                        : isLight ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-300 hover:bg-zinc-800/60'
                     }`}
                   >
                     <span className="truncate">{repo.owner}/{repo.name}</span>
-                    {selectedRepo?.id === repo.id && <Check size={14} className="text-emerald-400" />}
+                    {selectedRepo?.id === repo.id && <Check size={14} className={isLight ? 'text-slate-900' : 'text-emerald-400'} />}
                   </button>
                 ))}
               </div>
-              <div className="p-1 border-t border-zinc-800">
+              <div className={`p-1 border-t ${isLight ? 'border-slate-100' : 'border-zinc-800'}`}>
                 <button
                   onClick={() => {
                     onOpenNewRepoModal();
                     setIsRepoDropdownOpen(false);
                   }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 rounded-md transition-colors font-medium"
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    isLight ? 'text-slate-800 hover:bg-slate-100' : 'text-zinc-300 hover:bg-zinc-800'
+                  }`}
                 >
                   <Plus size={14} />
                   <span>Connect New Repo...</span>
@@ -100,33 +126,60 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         <div className="flex-1 relative flex items-center">
-          <Search size={14} className="absolute left-3 text-zinc-500" />
+          <Search size={14} className={`absolute left-3 ${isLight ? 'text-slate-400' : 'text-zinc-500'}`} />
           <input
             type="text"
             placeholder="Search files, modules, or ask AI..."
-            className="w-full h-8 pl-9 pr-3 bg-zinc-900/80 border border-zinc-800 rounded-md text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600 font-mono transition-all"
+            className={`w-full h-8 pl-9 pr-3 border rounded-md text-xs font-mono transition-all focus:outline-none ${
+              isLight 
+                ? 'bg-slate-100 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-slate-400' 
+                : 'bg-zinc-900/80 border-zinc-800 text-zinc-200 placeholder:text-zinc-500 focus:border-zinc-600'
+            }`}
           />
         </div>
       </div>
 
-      {/* Right section: Actions */}
+      {/* Right section: Theme toggle & Actions */}
       <div className="flex items-center gap-2">
+        {/* Sun / Moon Theme Switcher */}
+        <button
+          onClick={onToggleTheme}
+          className={`p-2 rounded-md transition-colors ${
+            isLight 
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' 
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+          }`}
+          title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+        >
+          {isLight ? <Moon size={16} /> : <Sun size={16} />}
+        </button>
+
         <button
           onClick={onOpenAISettings}
-          className="p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+          className={`p-2 rounded-md transition-colors ${
+            isLight 
+              ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' 
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+          }`}
           title="AI Settings"
         >
           <SlidersHorizontal size={16} />
         </button>
         <button
           onClick={onToggleBeginnerGuide}
-          className="text-xs font-medium text-zinc-400 hover:text-white px-3 h-8 flex items-center transition-colors"
+          className={`text-xs font-medium px-3 h-8 flex items-center transition-colors ${
+            isLight ? 'text-slate-600 hover:text-slate-900' : 'text-zinc-400 hover:text-white'
+          }`}
         >
           Beginner Guide
         </button>
         <button
           onClick={onOpenNewRepoModal}
-          className="h-8 px-3.5 bg-white hover:bg-zinc-200 text-black text-xs font-semibold rounded-md shadow-sm transition-colors flex items-center gap-1.5"
+          className={`h-8 px-3.5 text-xs font-semibold rounded-md shadow-sm transition-colors flex items-center gap-1.5 ${
+            isLight 
+              ? 'bg-slate-900 hover:bg-slate-800 text-white' 
+              : 'bg-white hover:bg-zinc-200 text-black'
+          }`}
         >
           <Plus size={14} />
           <span>Analyze Repo</span>

@@ -19,6 +19,16 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [selectedIssueId, setSelectedIssueId] = useState<string | undefined>(undefined);
 
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('openpulse_theme') as 'dark' | 'light') || 'dark';
+  });
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('openpulse_theme', nextTheme);
+  };
+
   const [isNewRepoModalOpen, setIsNewRepoModalOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isBeginnerGuideOpen, setIsBeginnerGuideOpen] = useState(false);
@@ -44,8 +54,12 @@ const App: React.FC = () => {
     setIsNewRepoModalOpen(false);
   };
 
+  const isLight = theme === 'light';
+
   return (
-    <div className="flex flex-col min-h-screen bg-black text-zinc-100 font-sans selection:bg-zinc-800">
+    <div className={`flex flex-col min-h-screen font-sans transition-colors ${
+      isLight ? 'bg-slate-50 text-slate-900 selection:bg-slate-200' : 'bg-black text-zinc-100 selection:bg-zinc-800'
+    }`}>
       {/* Navbar */}
       <Navbar 
         repositories={repositories}
@@ -55,6 +69,8 @@ const App: React.FC = () => {
         aiSettings={aiSettings}
         onOpenAISettings={() => setIsAISettingsOpen(true)}
         onToggleBeginnerGuide={() => setIsBeginnerGuideOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main Content Area */}
@@ -64,6 +80,7 @@ const App: React.FC = () => {
           activeTab={activeTab} 
           onTabChange={setActiveTab} 
           openIssuesCount={selectedRepo.openIssues} 
+          theme={theme}
         />
         
         {/* Main Content */}
@@ -77,7 +94,7 @@ const App: React.FC = () => {
               />
             )}
             {activeTab === 'architecture' && (
-              <ArchitectureGraphView repo={selectedRepo} onNavigateTab={setActiveTab} />
+              <ArchitectureGraphView repo={selectedRepo} onNavigateTab={setActiveTab} theme={theme} />
             )}
             {activeTab === 'issue-studio' && (
               <IssuePRStudioView repo={selectedRepo} selectedIssueId={selectedIssueId} />
@@ -90,7 +107,9 @@ const App: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/60 bg-[#0a0a0f] py-4 text-center text-sm text-slate-500">
+      <footer className={`border-t py-4 text-center text-xs font-mono transition-colors ${
+        isLight ? 'bg-white border-slate-200 text-slate-500' : 'bg-black border-zinc-800/80 text-zinc-500'
+      }`}>
         <p>&copy; {new Date().getFullYear()} OpenPulse AI. All rights reserved.</p>
       </footer>
 
