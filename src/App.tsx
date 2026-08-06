@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [isBeginnerGuideOpen, setIsBeginnerGuideOpen] = useState(false);
 
   const [aiSettings, setAiSettings] = useState<AISettings>({
+    provider: 'google',
     model: 'gemini-2.0-flash',
     userApiKey: '',
     rateLimitPerMin: 10,

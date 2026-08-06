@@ -92,9 +92,13 @@ export interface SandboxFile {
   content: string;
 }
 
+export type AIProvider = 'google' | 'openai' | 'anthropic' | 'ollama';
+
 export interface AISettings {
-  model: 'gemini-1.5-flash' | 'gemini-2.0-flash' | 'custom-key';
+  provider: AIProvider;
+  model: string;
   userApiKey: string;
+  customEndpoint?: string;
   rateLimitPerMin: number;
   protectionEnabled: boolean;
 }
