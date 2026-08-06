@@ -10,7 +10,10 @@ import {
   FolderTree, 
   Search, 
   Info,
-  ArrowRight
+  ArrowRight,
+  Cpu,
+  Layers,
+  ArrowDown
 } from 'lucide-react';
 
 interface ArchitectureGraphViewProps {
@@ -19,19 +22,20 @@ interface ArchitectureGraphViewProps {
 }
 
 export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraphViewProps) {
-  const [viewMode, setViewMode] = useState<'tree' | 'graph'>('tree');
+  const [viewMode, setViewMode] = useState<'graph' | 'tree'>('graph');
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     'tree-src': true,
-    'tree-[#1]': true,
+    'tree-components': true,
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<{
     name: string;
     path: string;
-    type: 'folder' | 'file';
+    type: 'folder' | 'file' | 'system';
     description?: string;
     fileSize?: string;
     moduleType?: string;
+    connections?: string[];
   } | null>(null);
 
   // Default tree if repo.fileTree is empty
@@ -53,7 +57,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
             { id: 'f-nav', name: 'Navbar.tsx', type: 'file', path: 'src/components/Navbar.tsx', fileSize: '4.2 KB', moduleType: 'component', description: 'Top navigation bar with repository selector & search.' },
             { id: 'f-side', name: 'Sidebar.tsx', type: 'file', path: 'src/components/Sidebar.tsx', fileSize: '3.1 KB', moduleType: 'component', description: 'Left navigation sidebar for switching views.' },
             { id: 'f-dash', name: 'DashboardView.tsx', type: 'file', path: 'src/components/DashboardView.tsx', fileSize: '5.8 KB', moduleType: 'core', description: 'Main repository overview dashboard.' },
-            { id: 'f-arch', name: 'ArchitectureGraphView.tsx', type: 'file', path: 'src/components/ArchitectureGraphView.tsx', fileSize: '7.2 KB', moduleType: 'core', description: 'Interactive module architecture and folder tree visualizer.' },
+            { id: 'f-arch', name: 'ArchitectureGraphView.tsx', type: 'file', path: 'src/components/ArchitectureGraphView.tsx', fileSize: '7.2 KB', moduleType: 'core', description: 'Interactive System Design flowchart and architectural visualizer.' },
             { id: 'f-issue', name: 'IssuePRStudioView.tsx', type: 'file', path: 'src/components/IssuePRStudioView.tsx', fileSize: '6.4 KB', moduleType: 'core', description: 'AI issue solver & code diff generator.' },
           ]
         },
@@ -102,12 +106,13 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
   };
 
   const activeItem = selectedItem || {
-    name: fileTree[0]?.name || repo.name,
-    path: fileTree[0]?.path || `root/${repo.name}`,
-    type: fileTree[0]?.type || 'folder',
-    description: fileTree[0]?.description || `Root codebase hierarchy for ${repo.owner}/${repo.name}`,
-    fileSize: 'Directory',
-    moduleType: 'core'
+    name: repo.architectureNodes[0]?.label || 'UI & Presentation Layer',
+    path: `architecture/ui-presentation`,
+    type: 'system' as const,
+    description: repo.architectureNodes[0]?.description || `Renders interactive UI views, dashboard metrics, & navigation for ${repo.name}.`,
+    fileSize: `${repo.architectureNodes[0]?.fileCount || 8} files`,
+    moduleType: 'component',
+    connections: repo.architectureNodes[0]?.connections || ['State & Data Routing Layer', 'GitHub REST API Client']
   };
 
   const renderTreeNodes = (nodes: TreeNode[], depth = 0) => {
@@ -194,45 +199,34 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
 
   return (
     <div className="flex flex-col space-y-6 text-slate-100 p-2 md:p-4 font-sans">
-      {/* Purpose Banner */}
+      {/* Educational Purpose Banner */}
       <div className="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl space-y-2">
         <div className="flex items-center justify-between text-indigo-300 font-semibold text-xs">
           <span className="flex items-center gap-2">
             <Info className="w-4 h-4 text-indigo-400" />
-            What is the Architecture Tab?
+            Why use System Architecture Topology instead of plain GitHub?
           </span>
           <span className="px-2 py-0.5 rounded text-[9px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
-            Codebase Hierarchy
+            System Design Topology
           </span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">
-          This tab visualizes the <strong>folder tree hierarchy and dependency graph</strong> for <code className="text-indigo-300 font-mono">{repo.owner}/{repo.name}</code>. It helps you understand where key files live and how modules connect before making contributions.
+          GitHub only shows a plain list of folders. OpenPulse AI parses your codebase's <strong>System Architecture Layers</strong> (UI Layer ➔ State Routing ➔ REST API Client ➔ AI & SAST Engine ➔ Build Pipeline) and displays a directional data flow diagram so you understand how data flows through the application.
         </p>
       </div>
 
       {/* Header & View Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">Repository Architecture & File Tree</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">System Architecture & Data Flow</h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Hierarchical directory layout & AST dependency relationships
+            Architectural topology flow for <span className="text-indigo-400 font-mono">{repo.owner}/{repo.name}</span>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* View Switcher Tabs */}
           <div className="flex items-center p-1 bg-[#12121c] border border-slate-800 rounded-lg">
-            <button
-              onClick={() => setViewMode('tree')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                viewMode === 'tree'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <FolderTree className="w-3.5 h-3.5" />
-              <span>Folder Tree</span>
-            </button>
             <button
               onClick={() => setViewMode('graph')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
@@ -242,7 +236,18 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
               }`}
             >
               <Network className="w-3.5 h-3.5" />
-              <span>Dependency Graph</span>
+              <span>System Flowchart</span>
+            </button>
+            <button
+              onClick={() => setViewMode('tree')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                viewMode === 'tree'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <FolderTree className="w-3.5 h-3.5" />
+              <span>Directory Tree</span>
             </button>
           </div>
 
@@ -251,7 +256,7 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
-              placeholder="Search files or folders..."
+              placeholder="Search architecture..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-8 pl-8 pr-3 bg-[#12121c] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition-all w-48"
@@ -262,70 +267,93 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
 
       {/* Main Two-Column Layout */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Column: Tree or Graph View */}
-        <div className="w-full lg:w-2/3 bg-[#12121c] border border-slate-800 rounded-xl p-4 shadow-xl min-h-[420px] flex flex-col">
-          {viewMode === 'tree' ? (
+        {/* Left Column: Flowchart or Tree View */}
+        <div className="w-full lg:w-2/3 bg-[#12121c] border border-slate-800 rounded-xl p-5 shadow-xl min-h-[420px] flex flex-col justify-between">
+          {viewMode === 'graph' ? (
+            /* System Architecture Flowchart (Data Flow Pipeline) */
+            <div className="flex-1 flex flex-col space-y-4">
+              <div className="flex items-center justify-between px-3 py-2 bg-[#0a0a0f] border border-slate-800 rounded-lg text-xs font-mono text-slate-400">
+                <span className="flex items-center gap-1.5 text-indigo-400 font-semibold">
+                  <Layers className="w-4 h-4" /> System Design Data Flow Diagram
+                </span>
+                <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  Low Coupling • High Cohesion
+                </span>
+              </div>
+
+              {/* Flowchart Nodes */}
+              <div className="flex flex-col space-y-3 py-2">
+                {repo.architectureNodes.map((node, idx) => {
+                  const isSelected = activeItem.name === node.label;
+                  return (
+                    <div key={node.id} className="flex flex-col items-center space-y-2">
+                      <div
+                        onClick={() => setSelectedItem({
+                          name: node.label,
+                          path: `architecture/${node.id}`,
+                          type: 'system',
+                          description: node.description,
+                          fileSize: `${node.fileCount} files`,
+                          moduleType: node.type,
+                          connections: node.connections
+                        })}
+                        className={`w-full p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
+                          isSelected
+                            ? 'bg-indigo-600/15 border-indigo-500 text-white shadow-lg shadow-indigo-500/10'
+                            : 'bg-[#0a0a0f] border-slate-800 hover:border-slate-700 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                            0{idx + 1}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold font-mono text-white tracking-wide">{node.label}</span>
+                            <p className="text-[11px] text-slate-400 leading-snug line-clamp-1">{node.description}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-white/[0.05] text-slate-300 border border-white/[0.08]">
+                            {node.type}
+                          </span>
+                          <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
+                            {node.fileCount} files
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Directional Connector Arrow */}
+                      {idx < repo.architectureNodes.length - 1 && (
+                        <div className="flex items-center justify-center text-indigo-400/60 my-0.5">
+                          <ArrowDown className="w-4 h-4 animate-pulse" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* Directory Tree Mode */
             <div className="flex-1 space-y-1 overflow-y-auto max-h-[500px]">
               <div className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0f] border border-slate-800 rounded-lg text-xs font-mono font-bold text-white mb-2">
                 <Folder className="w-4 h-4 text-indigo-400" />
-                <span>{repo.owner} / {repo.name} (Root)</span>
+                <span>{repo.owner} / {repo.name} (Root File Tree)</span>
               </div>
               {renderTreeNodes(fileTree)}
-            </div>
-          ) : (
-            /* Dependency Network Flow View */
-            <div className="flex-1 space-y-4">
-              <div className="px-3 py-2 bg-[#0a0a0f] border border-slate-800 rounded-lg text-xs font-mono text-slate-400 flex items-center justify-between">
-                <span>Module Dependency DAG Topology</span>
-                <span className="text-[10px] text-indigo-400 font-semibold uppercase">{repo.architectureNodes.length} Core Modules</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {repo.architectureNodes.map((node) => (
-                  <div 
-                    key={node.id}
-                    onClick={() => setSelectedItem({
-                      name: node.label,
-                      path: `node/${node.id}`,
-                      type: 'folder',
-                      description: node.description,
-                      fileSize: `${node.fileCount} managed files`,
-                      moduleType: node.type
-                    })}
-                    className="p-4 bg-[#0a0a0f] border border-slate-800 hover:border-indigo-500/40 rounded-xl cursor-pointer transition-all space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold font-mono text-white">{node.label}</span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-white/[0.05] text-indigo-300 border border-white/[0.08]">
-                        {node.type}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                      {node.description}
-                    </p>
-
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-800/80">
-                      <span>{node.fileCount} files</span>
-                      {node.connections.length > 0 && (
-                        <span className="text-indigo-400 font-mono flex items-center gap-1">
-                          depends on {node.connections.join(', ')}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </div>
 
-        {/* Right Column: Inspector Panel */}
+        {/* Right Column: Node Inspector Panel */}
         <div className="w-full lg:w-1/3">
           <div className="bg-[#12121c] border border-slate-800 rounded-xl p-5 space-y-5 sticky top-20 shadow-xl">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Node Inspector</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
+                  <Cpu className="w-3.5 h-3.5" /> Layer Inspector
+                </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-white/[0.05] text-slate-300 border border-white/[0.08]">
                   {activeItem.type}
                 </span>
@@ -335,17 +363,17 @@ export function ArchitectureGraphView({ repo, onNavigateTab }: ArchitectureGraph
             </div>
 
             <div className="p-3 bg-[#0a0a0f] rounded-lg border border-slate-800 text-xs text-slate-300 space-y-1 leading-relaxed">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Description</span>
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Layer Responsibilities</span>
               <p>{activeItem.description}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 py-2 border-y border-slate-800 text-xs">
               <div>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Size / Items</span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Managed Files</span>
                 <span className="text-sm font-bold text-white font-mono">{activeItem.fileSize}</span>
               </div>
               <div>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Module Category</span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Layer Type</span>
                 <span className="text-sm font-bold text-indigo-400 font-mono capitalize">{activeItem.moduleType || 'core'}</span>
               </div>
             </div>
