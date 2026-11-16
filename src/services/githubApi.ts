@@ -38,8 +38,9 @@ interface GitHubIssueResponse {
 export function parseGitHubUrl(inputUrl: string): { owner: string; repo: string } | null {
   let cleaned = inputUrl.trim();
   cleaned = cleaned.replace(/^https?:\/\/(www\.)?github\.com\//i, '');
+  cleaned = cleaned.replace(/\/+$/, '');
   cleaned = cleaned.replace(/\.git$/i, '');
-  cleaned = cleaned.replace(/\/$/, '');
+  cleaned = cleaned.replace(/\/+$/, '');
 
   const parts = cleaned.split('/');
   if (parts.length >= 2 && parts[0] && parts[1]) {

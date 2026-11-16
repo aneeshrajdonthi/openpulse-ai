@@ -8,6 +8,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Tested_with-Vitest-FCC72B.svg?style=for-the-badge&logo=vitest&logoColor=black)](https://vitest.dev/)
+[![CI](https://github.com/aneeshrajdonthi/openpulse-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/aneeshrajdonthi/openpulse-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
 
 <p align="center">
@@ -49,6 +51,11 @@
 ### 💻 Live Sandbox Playground
 * Multi-file in-browser code editor with syntax highlighting, language selector, and dark terminal execution console.
 
+### 🧪 Comprehensive Testing & CI/CD Pipeline
+* **Unit & Component Test Suite**: 38 tests across API services, navigation, modal states, and AI review workflows built with Vitest and React Testing Library (`@testing-library/react`).
+* Added unit tests with Vitest + React Testing Library and a GitHub Actions CI pipeline running on every push.
+* **Continuous Integration**: Automated GitHub Actions workflow executing Oxlint, Vitest, and TypeScript production builds on every push and pull request.
+
 ---
 
 ## 🎨 Theme Support
@@ -68,6 +75,7 @@
 | **Styling & Theme** | Tailwind CSS v4 (`@tailwindcss/vite`), Plus Jakarta Sans, JetBrains Mono |
 | **Icons** | Lucide React |
 | **Build Tool** | Vite 6 |
+| **Testing & CI/CD** | Vitest, React Testing Library, jsdom, GitHub Actions CI |
 | **External APIs** | GitHub REST API (`/repos`, `/contents`, `/issues`, `/contributors`) |
 | **LLM Provider Integration** | Google Gemini, OpenAI REST, Anthropic REST, Ollama Local API |
 
